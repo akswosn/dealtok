@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="tok">
+	
+	<typeAlias alias="tok" type="com.rnx.tok.model.Tok"/>
+	<typeAlias alias="tokGroup" type="com.rnx.tok.model.TokGroup"/>
+	
+	<statement id="selectTokCount" resultClass="int">
+		SELECT COUNT(*) FROM user_info
+	</statement>
+	
+	<statement id="selectTokGroupList" resultClass="tokGroup" parameterClass="tok">
+		SELECT 
+			TGID tokGroupId, 
+			CREATE_USER_SEQ createUserSeq, 
+			A.DID dealId,  
+			SUMMARY, 
+			DATE_FORMAT(createTime, '%Y-%m-%d %H:%i:%s') createTime,
+			DATE_FORMAT(modifiedTime, '%Y-%m-%d %H:%i:%s') modifiedTime,
+			PROFILE_IMG profileImg, 
+			NICKNAME,
+			DEAL_IMG dealImg,
+			C.CONTENT dealSummary
+		FROM TOLK_GROUP A, user_info B, DEAL_ITEM C
+		
+		<isEqual property="type" compareValue="in">
+			WHERE CREATE_USER_SEQ != #userSeq#
+					AND TGID IN (
+						SELECT TGID FROM tolk_user_group
+						WHERE USER_SEQ = #userSeq#
+					)
+		</isEqual>
+		<isEqual property="type" compareValue="out">
+			WHERE CREATE_USER_SEQ = #userSeq#
+		</isEqual>
+			AND A.DID = C.DID
+			AND A.MODIFY_USER_SEQ = B.USER_SEQ
+		ORDER BY MODIFIEDTIME DESC
+	</statement>
+	<statement id="selectTokList" resultClass="tok">
+		SELECT 
+			A.USER_SEQ userSeq,
+			MESSAGE,
+			DATE_FORMAT(CREATETIME, '%Y/%m/%d %H:%i') createTime,
+			NICKNAME,
+			PROFILE_IMG profileImg
+		FROM tolk_content A, user_info B
+		WHERE A.USER_SEQ = B.USER_SEQ
+			AND TGID = #tgId#
+		ORDER BY CREATETIME DESC
+	</statement>
+	
+	<statement id="selectTokUserList" resultClass="tok">
+		SELECT 
+			A.USER_SEQ userSeq,
+			A.PROFILE_IMG profileImg,
+			NICKNAME
+		FROM user_info A, tolk_user_group B
+		WHERE A.USER_SEQ = B.USER_SEQ
+			AND B.TGID = #tgId#
+	</statement>
+	
+	
+	
+	<insert id="insertTok" parameterClass="tok">
+		INSERT INTO TOLK_CONTENT
+		(
+			USER_SEQ, TGID, MESSAGE, CREATETIME
+		)
+		VALUES
+		(
+			#userSeq#, #tokGroupId#, #message#,
+			SYSDATE()
+		)
+	</insert>
+	
+	<update id="updateTokGroup" parameterClass="tok">
+		UPDATE TOLK_GROUP
+		SET MODIFIEDTIME = SYSDATE(),
+			SUMMARY = #message#,
+			MODIFY_USER_SEQ = #userSeq#
+		WHERE TGID = #tokGroupId#
+	</update>
+</sqlMap>

@@ -1,0 +1,156 @@
+/*
+$base-color: green;
+$active-color: blue;
+$base-gradient:'glossy';
+*/
+
+@import 'sencha-touch/default/all';
+
+// You may remove any of the following modules that you
+// do not use in order to create a smaller css file.
+@include sencha-panel;
+@include sencha-buttons;
+@include sencha-sheet;
+@include sencha-picker;
+@include sencha-tabs;
+@include sencha-toolbar;
+@include sencha-toolbar-forms;
+@include sencha-indexbar;
+@include sencha-list;
+@include sencha-layout;
+@include sencha-carousel;
+@include sencha-form;
+@include sencha-msgbox;
+@include sencha-loading-spinner;
+
+@include pictos-iconmask('action');
+@include pictos-iconmask('list');
+@include pictos-iconmask('chat');
+@include pictos-iconmask('chat1');
+@include pictos-iconmask('chat2');
+@include pictos-iconmask('chat3');
+@include pictos-iconmask('chat4');
+@include pictos-iconmask('chat_black1');
+@include pictos-iconmask('chat_black2');
+@include pictos-iconmask('list');
+
+
+.rnx-item-header {
+  @include background-gradient($list-header-bg-color, $list-header-gradient);
+  @include color-by-background($list-header-bg-color, 30%);
+  @include bevel-by-background($list-header-bg-color);
+  border-top: 1px solid $list-header-bg-color;
+  border-bottom: 1px solid darken($list-header-bg-color, 20%);
+  font-weight: bold;
+  font-size: 0.8em;
+  padding: 0.2em 1.02em;
+  @include bevel-by-background($list-header-bg-color);
+}
+
+/* ============================================================================================================================
+== BUBBLE WITH A RIGHT-ANGLED TRIANGLE
+** ============================================================================================================================ */
+$bubble-bg-color-left: #78C0A8;
+$bubble-bg-color: #F07818;
+
+/* THE SPEECH BUBBLE
+------------------------------------------------------------------------------------------------------------------------------- */
+
+.triangle-right {
+	position: relative;
+	padding: 5px;
+	//margin: 1em 0 3em;
+	color: #fff;
+	background: $bubble-bg-color; /* default background for browsers without gradient support */
+
+	/* css3 */
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+}
+
+
+/* Variant : for left positioned triangle
+------------------------------------------ */
+
+.triangle-right.left {
+	margin-left: 50px;
+	background:$bubble-bg-color-left
+}
+
+/* Variant : for right positioned triangle
+------------------------------------------ */
+
+.triangle-right.right {
+	margin-right:50px;
+	background:$bubble-bg-color;
+}
+
+/* THE TRIANGLE
+------------------------------------------------------------------------------------------------------------------------------- */
+
+.triangle-right:after {
+	content:"";
+	display:block; /* reduce the damage in FF3.0 */
+	position:absolute;
+	bottom:-5px; /* value = - border-top-width - border-bottom-width */
+	left:50px; /* controls horizontal position */
+	width:0;
+	height:0;
+	border-width:50px 0 0 50px; /* vary these values to change the angle of the vertex */
+	border-style:solid;
+	border-color:$bubble-bg-color transparent;
+}
+
+/* Variant : left
+------------------------------------------ */
+
+.triangle-right.left:after {
+	top: 8px;
+	left:-20px; /* value = - border-left-width - border-right-width */
+	bottom:auto;
+	border-width:7px 20px 0 0; /* vary these values to change the angle of the vertex */
+	border-color:transparent $bubble-bg-color-left;
+}
+
+/* Variant : right
+------------------------------------------ */
+
+.triangle-right.right:after {
+	top:8px;
+	right:-20px; /* value = - border-left-width - border-right-width */
+	bottom:auto;
+	left:auto;
+	border-width:7px 0 0 20px; /* vary these values to change the angle of the vertex */
+	border-color:transparent $bubble-bg-color ;
+}
+/*---------------------------------------------------------------------------*/
+
+.x-list-item {
+	img.tok-img-owner {
+		width : 30px;
+		height : 30px;
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+	img.tok-img-other {
+		width : 30px;
+		height : 30px;
+		float: left;
+	}
+	p.cdate {
+		position: relative;
+		margin-top:1px;
+		font-weight: bold;
+		font-size: 0.8em;
+		padding: 0.2em 1.02em;
+		width:140px;
+		color: #fff;
+		background: #A8B1B4;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+		border-radius:5px;
+		
+	}
+}

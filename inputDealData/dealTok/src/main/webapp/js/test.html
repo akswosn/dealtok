@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<script type="text/javascript" src="socket.io/socket.io.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+	var socket;
+	
+	window.onload = function(){
+		socket = io.connect('http://localhost:3000/tok');
+		
+		console.log(socket);
+		
+		socket.emit('joinChat', '1234');
+		
+		socket.on('chatMsg', function(data, callback){
+			setMsg(data.tok);
+		});	
+	}	
+	
+	function setMsg(msg){
+		var textArea = document.getElementById('chat');
+			
+		textArea.value = textArea.value + "\n" +  msg;
+	}
+	
+	function sendChat(){
+		var msg = document.getElementById('chatText').value;
+		
+		var data = {
+			img : 'lkmlkmlkm',
+			tok	: null,
+			owner : 'N',
+			cdate : new Date()
+		};
+		
+		data.tok = msg;
+		
+		//setMsg(msg);
+		
+		socket.emit('chatMsg', data);		
+	}
+</script>
+
+<textarea id="chat" rows="20" cols="400"></textarea>
+<input type="text" id="chatText">
+<input type="button" value="send" onclick="sendChat();">
+
+</body>
+</html>

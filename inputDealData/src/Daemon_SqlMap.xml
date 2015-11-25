@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Daemon">	
+	<typeAlias alias="dealData" type="com.daemon.vo.DealDataVO"/>
+	
+	<statement id="insertDealData" parameterClass="dealData">
+		INSERT INTO DEAL_ITEM(DNAME, DEAL_IMG, CONTENT, REG_DATE, LINK, TIME_START, TIME_END, PRICE_ORIGINAL, PRICE_NOW, SALE_PERCENT,
+				SELL_COUNT, COUNT_MIN, COUNT_MAX, AREA, CATEGORY, SHOP, TEL, ADDR, LATITUDE, LONGITUDE, DESC_TEXT, SELLER)
+		VALUES(#dname#,#deal_img#,#content#,SYSDATE(),#link#,#time_start#,#time_end#,#price_original#,#price_now#,#sale_percent#,#sell_count#,
+				#count_min#,#count_max#,#area#,#category#,#shop#,#tel#,#addr#,#latitude#,#longitude#,#desc_text#,#seller#)
+	</statement>
+	
+	<statement id="deleteDealData" parameterClass="string">
+		DELETE FROM DEAL_ITEM WHERE SELLER=#seller#;
+	</statement>
+</sqlMap>
