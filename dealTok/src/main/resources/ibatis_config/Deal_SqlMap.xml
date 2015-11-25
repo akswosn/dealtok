@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="deal">
+	<typeAlias alias="deal" type="com.rnx.deal.model.Deal"/>
+	<typeAlias alias="friend" type="com.rnx.deal.model.Friend"/>
+	<typeAlias alias="msg" type="com.rnx.deal.model.Msg"/>
+	<typeAlias alias="pushDeal" type="com.rnx.deal.model.PushDeal"/>
+	
+	<typeAlias alias="category" type="com.rnx.deal.model.Category" />
+	<typeAlias alias="area" type="com.rnx.deal.model.Area" />
+	<typeAlias alias="shop" type="com.rnx.deal.model.Shop" />
+	
+	<statement id="selectHotDealList" resultClass="deal" parameterClass="map">
+		SELECT DID DID
+			, DEAL_IMG DEALIMG
+			, DNAME TITLE
+			, CONTENT CONTENT
+			, REG_DATE REGDATE
+			, LINK
+			, TIME_START
+			, TIME_END
+			, PRICE_ORIGINAL
+			, PRICE_NOW
+			, SALE_PERCENT
+			, SELL_COUNT
+			, COUNT_MIN
+			, COUNT_MAX
+			, AREA
+			, CATEGORY
+			, SHOP
+			, TEL
+			, ADDR
+			, LATITUDE
+			, LONGITUDE
+			, DESC_TEXT
+			, SELLER
+		FROM DEAL_ITEM
+		<isEqual property="sort" compareValue="1">
+			ORDER BY TIME_START DESC
+		</isEqual>
+		<isEqual property="sort" compareValue="2">
+			ORDER BY SELL_COUNT DESC
+		</isEqual>
+		LIMIT #startNum#,#endNum#
+	</statement>
+	
+	<statement id="selectPushDealList" resultClass="deal" parameterClass="map">
+		SELECT DID DID
+			, DEAL_IMG DEALIMG
+			, DNAME TITLE
+			, CONTENT CONTENT
+			, REG_DATE REGDATE
+			, LINK
+			, TIME_START
+			, TIME_END
+			, PRICE_ORIGINAL
+			, PRICE_NOW
+			, SALE_PERCENT
+			, SELL_COUNT
+			, COUNT_MIN
+			, COUNT_MAX
+			, AREA
+			, CATEGORY
+			, SHOP
+			, TEL
+			, ADDR
+			, LATITUDE
+			, LONGITUDE
+			, DESC_TEXT
+			, SELLER
+		  FROM DEAL_ITEM
+		 WHERE 0 = 0
+		<isNotEqual property="category" compareValue="0">
+		   AND CATEGORY in (SELECT SECOND_KIND FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='category')
+		</isNotEqual>
+		<isNotEqual property="area" compareValue="0">
+		   AND AREA in (SELECT SECOND_KIND FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='area')
+		</isNotEqual>
+		<isNotEqual property="seller" compareValue="0">
+		   AND SELLER in (SELECT SECOND_KIND FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='seller')
+		</isNotEqual>
+		<isEqual property="default" compareValue="1">
+		   AND 0 = 1
+		</isEqual>
+		 LIMIT #startNum#,#endNum#
+	</statement>
+	
+	<statement id="selectPushDealInfo" resultClass="pushDeal" parameterClass="pushDeal">
+		SELECT SECOND_KIND FROM PUSH_DEAL
+		 WHERE USER_SEQ=#user_seq#
+		   AND FIRST_KIND=#first_kind#
+	</statement>
+	
+	<statement id="selectCategoryCount" resultClass="int" parameterClass="int">
+		SELECT count(*) FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='category'
+	</statement>
+	<statement id="selectAreaCount" resultClass="int" parameterClass="int">
+		SELECT count(*) FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='area'
+	</statement>
+	<statement id="selectSellerCount" resultClass="int" parameterClass="int">
+		SELECT count(*) FROM PUSH_DEAL WHERE USER_SEQ=#user_seq# AND FIRST_KIND='seller'
+	</statement>
+	
+	<statement id="selectSearchDealList_category" resultClass="deal" parameterClass="category">
+		SELECT did did
+			, DEAL_IMG dealImg
+			, dname title
+			, CONTENT content
+			, REG_DATE regDate
+			, LINK
+			, TIME_START
+			, TIME_END
+			, PRICE_ORIGINAL
+			, PRICE_NOW
+			, SALE_PERCENT
+			, SELL_COUNT
+			, COUNT_MIN
+			, COUNT_MAX
+			, AREA
+			, CATEGORY
+			, SHOP
+			, TEL
+			, ADDR
+			, LATITUDE
+			, LONGITUDE
+			, DESC_TEXT
+			, SELLER
+		FROM deal_item
+		WHERE category in (
+		<isEqual property="health" compareValue="true">
+			'건강/레저',
+		</isEqual>
+		<isEqual property="culture" compareValue="true">
+			'공연/전시/문화',
+		</isEqual>
+		<isEqual property="education" compareValue="true">
+			'교육/취미',
+		</isEqual>
+		<isEqual property="food" compareValue="true">
+			'맛집/카페',
+		</isEqual>
+		<isEqual property="online" compareValue="true">
+			'모바일/온라인',
+		</isEqual>
+		<isEqual property="life" compareValue="true">
+			'뷰티/생활',
+		</isEqual>
+		<isEqual property="travel" compareValue="true">
+			'여행/숙박',
+		</isEqual>
+		<isEqual property="event" compareValue="true">
+			'이벤트/기타',
+		</isEqual>
+		<isEqual property="party" compareValue="true">
+			'주점/파티',
+		</isEqual>
+			''
+		)
+		  AND TIME_END > SYSDATE()
+		<isEqual property="sort" compareValue="1">
+			ORDER BY TIME_START DESC
+		</isEqual>
+		<isEqual property="sort" compareValue="2">
+			ORDER BY SELL_COUNT DESC
+		</isEqual>
+		LIMIT #startNum#,#endNum#
+	</statement>
+	
+	<statement id="selectSearchDealList_area" resultClass="deal" parameterClass="area">
+		SELECT did did
+			, DEAL_IMG dealImg
+			, dname title
+			, CONTENT content
+			, REG_DATE regDate
+			, LINK
+			, TIME_START
+			, TIME_END
+			, PRICE_ORIGINAL
+			, PRICE_NOW
+			, SALE_PERCENT
+			, SELL_COUNT
+			, COUNT_MIN
+			, COUNT_MAX
+			, AREA
+			, CATEGORY
+			, SHOP
+			, TEL
+			, ADDR
+			, LATITUDE
+			, LONGITUDE
+			, DESC_TEXT
+			, SELLER
+		FROM deal_item
+		WHERE area in (
+		<isEqual property="gangwon" compareValue="true">
+			'강원',
+		</isEqual>
+		<isEqual property="gyeonggi" compareValue="true">
+			'경기',
+		</isEqual>
+		<isEqual property="gyeongnam" compareValue="true">
+			'경남',
+		</isEqual>
+		<isEqual property="gyeongbuk" compareValue="true">
+			'경북',
+		</isEqual>
+		<isEqual property="gwangju" compareValue="true">
+			'광주',
+		</isEqual>
+		<isEqual property="daegu" compareValue="true">
+			'대구',
+		</isEqual>
+		<isEqual property="daejeon" compareValue="true">
+			'대전',
+		</isEqual>
+		<isEqual property="busan" compareValue="true">
+			'부산',
+		</isEqual>
+		<isEqual property="seoul" compareValue="true">
+			'서울',
+		</isEqual>
+		<isEqual property="ulsan" compareValue="true">
+			'울산',
+		</isEqual>
+		<isEqual property="incheon" compareValue="true">
+			'인천',
+		</isEqual>
+		<isEqual property="jeonnam" compareValue="true">
+			'전남',
+		</isEqual>
+		<isEqual property="jeonbuk" compareValue="true">
+			'전북',
+		</isEqual>
+		<isEqual property="jeju" compareValue="true">
+			'제주',
+		</isEqual>
+		<isEqual property="chungnam" compareValue="true">
+			'충남',
+		</isEqual>
+		<isEqual property="chungbuk" compareValue="true">
+			'충북',
+		</isEqual>
+			''
+		)
+		  AND TIME_END > SYSDATE()
+		<isEqual property="sort" compareValue="1">
+			ORDER BY TIME_START DESC
+		</isEqual>
+		<isEqual property="sort" compareValue="2">
+			ORDER BY SELL_COUNT DESC
+		</isEqual>
+		LIMIT #startNum#,#endNum#
+	</statement>
+	
+	<statement id="selectSearchDealList_shop" resultClass="deal" parameterClass="shop">
+		SELECT did did
+			, DEAL_IMG dealImg
+			, dname title
+			, CONTENT content
+			, REG_DATE regDate
+			, LINK
+			, TIME_START
+			, TIME_END
+			, PRICE_ORIGINAL
+			, PRICE_NOW
+			, SALE_PERCENT
+			, SELL_COUNT
+			, COUNT_MIN
+			, COUNT_MAX
+			, AREA
+			, CATEGORY
+			, SHOP
+			, TEL
+			, ADDR
+			, LATITUDE
+			, LONGITUDE
+			, DESC_TEXT
+			, SELLER
+		FROM deal_item
+		WHERE seller in (
+		<isEqual property="wemakeprice" compareValue="true">
+			'위메프',
+		</isEqual>
+		<isEqual property="coupang" compareValue="true">
+			'쿠팡',
+		</isEqual>
+		<isEqual property="ticketmonster" compareValue="true">
+			'티켓몬스터',
+		</isEqual>
+		<isEqual property="stylecoupons" compareValue="true">
+			'스타일쿠폰',
+		</isEqual>
+		<isEqual property="groupon" compareValue="true">
+			'그루폰',
+		</isEqual>
+		<isEqual property="ilgongil" compareValue="true">
+			'일공일',
+		</isEqual>
+		<isEqual property="daylect" compareValue="true">
+			'데이렉트닷컴',
+		</isEqual>
+		<isEqual property="nowshop" compareValue="true">
+			'지금샵',
+		</isEqual>
+		<isEqual property="chanuri" compareValue="true">
+			'차누리',
+		</isEqual>
+		<isEqual property="tboom" compareValue="true">
+			'티붐',
+		</isEqual>
+			''
+		)
+		  AND TIME_END > SYSDATE()
+		<isEqual property="sort" compareValue="1">
+			ORDER BY TIME_START DESC
+		</isEqual>
+		<isEqual property="sort" compareValue="2">
+			ORDER BY SELL_COUNT DESC
+		</isEqual>
+		LIMIT #startNum#,#endNum#
+	</statement>
+	
+	<statement id="selectFriendList" resultClass="friend" parameterClass="int">
+		SELECT a.USER_SEQ FRIEND_SEQ, a.AGE AGE, a.NICKNAME NICKNAME, a.ADDRESS ADDRESS, 
+				a.PROFILE_IMG PROFILE_IMG, a.PHONE PHONE, a.GENDER GENDER 
+		  FROM USER_INFO a, FRIEND b
+		 WHERE b.USER_SEQ=#user_seq#
+		   AND a.USER_SEQ=b.FRIEND_USER_SEQ
+	</statement>
+	
+	<insert id="insertTalkGroup" parameterClass="msg">
+		insert into talk_group(create_user_seq, modify_user_seq, did, summary, createtime, modifiedtime) 
+		values(#user_seq#, #user_seq#, #did#, #message#, sysdate(), sysdate())
+	</insert>
+	
+	<statement id="getTGID" resultClass="int" parameterClass="int">
+		select max(tgid) TGID 
+		  from talk_group 
+		 where create_user_seq=#user_seq#
+	</statement>
+	
+	<insert id="insertTalkUser" parameterClass="msg">
+		insert into talk_user_group(user_seq, tgid) 
+		values(#friend_seq#, #tgid#)
+	</insert>
+	
+	<insert id="insertTalkContent" parameterClass="msg">
+		insert into talk_content(user_seq, tgid, message, createtime) 
+		values(#user_seq#, #tgid#, #message#, sysdate())
+	</insert>
+	
+	<insert id="insertPushDeal" parameterClass="pushDeal">
+		INSERT INTO PUSH_DEAL(USER_SEQ, FIRST_KIND, SECOND_KIND) VALUES (#user_seq#, #first_kind#, #second_kind#)
+	</insert>
+	
+	<insert id="deletePushDeal" parameterClass="pushDeal">
+		DELETE FROM PUSH_DEAL
+		 WHERE USER_SEQ=#user_seq#
+		   AND FIRST_KIND=#first_kind#
+	</insert>
+</sqlMap>

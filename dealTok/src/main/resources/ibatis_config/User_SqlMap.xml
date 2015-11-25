@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="user">
+	<statement id="selectLoginUser" parameterClass="int" resultClass="hashmap">
+		SELECT USER_SEQ userSeq
+			, UID uid, PHONE phone
+			, AGE age, GENDER gender
+			, NICKNAME nickName
+			, PASSWORD passwd
+			, PROFILE_IMG userImg
+		FROM USER_INFO
+		WHERE USER_SEQ = #value#
+	</statement>
+	
+	<statement id="selectLogin" parameterClass="java.util.HashMap" resultClass="hashmap">
+		SELECT USER_SEQ userSeq
+			, UID uid, PHONE phone
+			, AGE age, GENDER gender
+			, NICKNAME nickName
+			, PASSWORD passwd
+			, PROFILE_IMG userImg
+		FROM USER_INFO
+		WHERE UID = #uid# and PASSWORD = #passwd#
+	</statement>
+	
+	
+	<statement id="selectUserList" parameterClass="int" resultClass="hashmap">
+		SELECT USER_SEQ userSeq
+			, UID uid, PHONE phone
+			, AGE age, GENDER gender
+			, NICKNAME nickName
+			, PASSWORD passwd
+			, PROFILE_IMG userImg
+			, ADDRESS address
+		FROM USER_INFO
+		ORDER BY USER_SEQ ASC;
+	</statement>
+	<statement id="selectUserCount" parameterClass="string" resultClass="int">
+		SELECT count(uid)
+		FROM USER_INFO
+		where uid = #value#
+	</statement>
+	
+	<insert id="userJoin" parameterClass="java.util.HashMap">
+		<selectKey  keyProperty="user_seq" resultClass="java.lang.Integer">
+            SELECT ifnull(MAX(USER_SEQ),0)+1 MAXIDNUM FROM user_info
+        </selectKey>
+		insert into user_info(user_seq, UID
+			<isNotNull property="nickName" prepend=" , ">NICKNAME</isNotNull>
+			<isNotNull property="passwd" prepend=" , ">PASSWORD</isNotNull>
+			<isNotNull property="gender" prepend=" , ">GENDER</isNotNull>
+			<isNotNull property="phone" prepend=" , ">PHONE</isNotNull>
+			<isNotNull property="address" prepend=" , ">ADDRESS</isNotNull>
+			<isNotNull property="age" prepend=" , ">AGE</isNotNull>
+			<isNotNull property="profile_img" prepend=" , ">PROFILE_IMG</isNotNull>
+			<isNotNull property="greeting" prepend=" , ">GREETING</isNotNull>
+		)
+		values(
+			#user_seq#, 
+			#uid#
+			<isNotNull property="nickName" prepend=" , ">#nickName#</isNotNull>
+			<isNotNull property="passwd" prepend=" , ">#passwd#</isNotNull>
+			<isNotNull property="gender" prepend=" , ">#gender#</isNotNull>
+			<isNotNull property="phone" prepend=" , ">#phone#</isNotNull>
+			<isNotNull property="address" prepend=" , ">#address#</isNotNull>
+			<isNotNull property="age" prepend=" , ">#age#</isNotNull>
+			<isNotNull property="profile_img" prepend=" , ">#profile_img#</isNotNull>
+			<isNotNull property="greeting" prepend=" , ">#greeting#</isNotNull>
+		)
+	</insert>
+	
+	<statement id="selectFriend" parameterClass="int" resultClass="hashmap">
+		select USER_SEQ userSeq
+			, UID uid, PHONE phone
+			, AGE age, GENDER gender
+			, NICKNAME nickName
+			, PASSWORD passwd
+			, PROFILE_IMG userImg
+			, ADDRESS address
+		from user_info
+		where USER_SEQ in (
+		  select friend_user_seq
+		  from friend
+		  where user_seq = #userSeq#
+		)
+	</statement>
+	
+	<statement id="friendSearch" parameterClass="java.util.HashMap" resultClass="hashmap">
+		select A.*,(CASE (
+		      select count(*)
+		      from friend
+		      where user_seq = #userSeq# and friend_user_seq = A.user_seq
+		    )
+		    when 1 then 'Y' 
+		    else 'N'
+		    end) as isFriend
+		from (
+		  select  UID uid
+		      , USER_SEQ user_seq
+		      , PHONE phone
+		  		, AGE age, GENDER gender
+		  		, NICKNAME nickName
+		  		, PASSWORD passwd
+		  		, PROFILE_IMG userImg
+		  		, ADDRESS address
+		  from user_info
+		  where USER_SEQ <![CDATA[<>]]> #userSeq#
+		  	and GENDER = #gender#
+		  	and USER_SEQ not in (
+	          select friend_user_seq
+			      from friend
+			      where user_seq = #userSeq#
+	        )
+		  	<isNotNull property="uid" prepend=" and ">
+		  		UID like CONCAT('%',#uid#,'%')
+		  	</isNotNull>
+		  	<isNotNull property="nickName" prepend=" and ">
+		  		NICKNAME like CONCAT('%',#nickName#,'%')
+		  	</isNotNull>
+		  	<isNotNull property="phone" prepend=" and ">
+		  		PHONE = #phone#
+		  	</isNotNull>
+		) A
+	</statement>
+	
+	<insert id="addFriend" parameterClass="java.util.HashMap">
+		insert into friend(
+			USER_SEQ
+			, FRIEND_USER_SEQ
+			, createtime
+			, STATUS
+		)
+		values(
+			#myUserSeq#
+			, #friendUserSeq#
+			, (select now() from dual)
+			, 'Y'
+		)
+	</insert>
+	
+	<update id="profileUpdate" parameterClass="java.util.HashMap">
+		update user_info
+		set age = #age#
+			, greeting = #greeting#
+			, nickname = #nickName#
+			, profile_img = #profileImg#
+		where user_seq = #userSeq#
+	</update>
+	
+	<statement id="selectProfile" parameterClass="int" resultClass="hashmap">
+		select u.user_seq, nickname, 
+		 (
+		   case CONVERT( gender USING UTF8 )
+		      when CONVERT( '1' USING UTF8 ) then '남'
+		      ELSE '여'
+		      END 
+		 ) as gender
+		, (
+		   case CONVERT( age USING UTF8 )
+		      when CONVERT( 0 USING UTF8 ) then '비공개'
+		      ELSE CONCAT (age, ' ')
+		      END 
+		 ) as age
+		, ifnull(greeting, '') greeting,  profile_img, ifnull(area, '없음') area
+		, ifnull(seller, '없음') seller, ifnull(category, '없음') category
+		FROM user_info u
+		    left OUTER JOIN (
+		      select user_seq, GROUP_CONCAT(SECOND_KIND SEPARATOR ', ') as area
+		      from push_deal
+		      where user_seq = #userSeq# and first_kind = 'area'
+		    ) a
+		    ON u.user_seq = a.user_seq
+		    left OUTER JOIN (
+		      select user_seq, GROUP_CONCAT(SECOND_KIND SEPARATOR ', ') as seller
+		      from push_deal
+		      where user_seq = #userSeq# and first_kind = 'seller'
+		    ) s
+		    ON u.user_seq = s.user_seq 
+		    left OUTER JOIN (
+		      select user_seq, GROUP_CONCAT(SECOND_KIND SEPARATOR ', ') as category
+		      from push_deal
+		      where user_seq = #userSeq# and first_kind = 'category'
+		    ) c
+		    ON u.user_seq = c.user_seq 
+		where u.user_seq = #userSeq#
+			limit 1
+	</statement>
+</sqlMap>

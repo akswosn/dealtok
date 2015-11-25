@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="hotTok">
+
+
+	<statement id="selectHotTokList" resultClass="hashmap">
+		select a.HID htalkId
+			, b.user_seq userSeq
+			, b.PROFILE_IMG userImg
+			, b.NICKNAME userName
+			, a.CONTENT content
+			, a.REG_DATE regDate
+			, c.CONTENT dealContent
+		FROM HOT_TALK a, user_info b, deal_item c
+		where a.USER_SEQ = b.USER_SEQ
+			and a.DID = c.DID
+		ORDER BY a.HID DESC
+	</statement>
+	
+	<statement id="selectDealList" resultClass="hashmap">
+		SELECT did did
+			, DEAL_IMG dealImg
+			, dname title
+			, CONTENT content
+			, REG_DATE regDate
+		FROM deal_item
+		ORDER BY did DESC
+	</statement>
+	
+	<statement id="insertHotTok" parameterClass="com.rnx.tok.model.HotTokParam">
+		INSERT INTO hot_talk( USER_SEQ, DID, CONTENT, REG_DATE )
+		VALUES( #userSeq#, #dealId#, #content#,  (select now()) )
+	</statement>
+</sqlMap>
